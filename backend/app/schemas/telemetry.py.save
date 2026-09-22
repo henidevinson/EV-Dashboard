@@ -1,0 +1,45 @@
+from datetime import datetime, timezone
+from typing import List, Optional
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class DecodedTelemetry(BaseModel):
+    """
+    Normalized telemetry frame representation.
+    Fields not physically provided by the frame evaluate strictly to None.
+    """
+    timestamp_utc: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        description="UTC timestamp when the frame was decoded",
+    )
+
+    # Core Pack Measurements (From Frame 0x90)
+    raw_pack_voltage: float = Field(..., description="Uncalibrated pack voltage in Volts")
+    calibrated_pack_voltage: float = Field(..., description="Calibrated pack voltage in Volts")
+    current_amperes: float = Field(..., description="Pack current: positive = discharging, negative = charging")
+    soc_percent: float = Field(..., ge=0.0, le=100.0, description="Battery State of Charge percentage (0-100)")
+
+    # Kinematic & Thermal Measurements (Optional / null if controller does not transmit them)
+    speed_kmh: Optional[float] = Field(None, description="Vehicle speed in km/h. null if unavailable")
+    motor_rpm: Optional[int] = Field(None, description="Motor RPM. null if unavailable")
+    motor_temperature_celsius: Optional[float] = Field(None, description="Motor core temp. null if unavailable")
+    controller_temperature_celsius: Optional[float] = Field(None, description="Inverter temp. null if unavailable")
+    battery_temperature_celsius: Optional[float] = Field(None, description="Battery pack temp. null if unavailable")
+
+    # Diagnostic & Mock Identification
+    fault_codes: List[str] = Field(default_factory=list, description="Active diagnostic fault codes")
+    raw_frame_hex: str = Field(..., description="Original raw hexadecimal byte sequence")
+
+    # Strict Safety Isolation Flags
+    is_mock: bool = Field(default=False, description="Flag set to True exclusively when telemetry is synthetic")
+    data_source: str = Field(default="REAL", description="Origin marker: REAL | MOCK")
+
+    model_config = ConfigDict(frozen=True)
+from typing import List, Optional
+from pydantic import BaseModel
+
+class DecodedTelemetry(BaseModel):
+    # ... your other existing fields ...
+    
+    # Add this line:
+    cell_voltages: Optional[List[float]] = None

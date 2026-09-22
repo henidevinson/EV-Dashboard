@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  background-color: #040609;
+  font-family: 'Inter', sans-serif;
+  color: #f8fafc;
+}
+
+.font-display {
+  font-family: 'Chakra Petch', monospace, sans-serif;
+}
+
+/* Futuristic HUD Glow Utilities */
+.glow-cyan {
+  filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.45));
+}
+
+.glow-red {
+  filter: drop-shadow(0 0 10px rgba(255, 45, 85, 0.65));
+}
+
+.glow-amber {
+  filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.45));
+}
+
+.glow-green {
+  filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.45));
+}

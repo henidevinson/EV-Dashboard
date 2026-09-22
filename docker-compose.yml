@@ -1,0 +1,45 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ev_telemetry_backend
+    restart: unless-stopped
+    environment:
+      # Use 'mock' while testing without physical hardware
+      - TELEMETRY_MODE=mock
+      - SERIAL_PORT=/dev/ttyUSB0
+      - SERIAL_BAUDRATE=9600
+      - READ_ONLY_MODE=true
+      - TELEMETRY_FRESHNESS_TIMEOUT=5.0
+      - DATABASE_URL=sqlite:////app/data/ev_telemetry.db
+    volumes:
+      - telemetry_data:/app/data
+    # Uncomment when your USB adapter / ESP32 is plugged in:
+    # devices:
+    #   - /dev/ttyUSB0:/dev/ttyUSB0
+    networks:
+      - ev_network
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ev_instrument_cluster
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - ev_network
+
+volumes:
+  telemetry_data:
+    driver: local
+
+networks:
+  ev_network:
+    driver: bridge
